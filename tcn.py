@@ -9,11 +9,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 from sklearn.preprocessing import LabelEncoder
 
-# Load intents.json
+
 with open('intents.json') as file:
     data = json.load(file)
 
-# Extract sentences and labels
 sentences = []
 labels = []
 for intent in data['intents']:
@@ -21,11 +20,9 @@ for intent in data['intents']:
         sentences.append(pattern)
         labels.append(intent['tag'])
 
-# Encode labels
 label_encoder = LabelEncoder()
 label_sequences = label_encoder.fit_transform(labels)
 
-# Encode sentences
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(sentences)
 sequences = tokenizer.texts_to_sequences(sentences)
@@ -33,11 +30,10 @@ word_index = tokenizer.word_index
 vocab_size = len(word_index) + 1
 max_len = max([len(x) for x in sequences])
 
-# Padding sequences
 X = pad_sequences(sequences, maxlen=max_len)
 y = pd.get_dummies(label_sequences).values
 
-# Split data
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 def build_tcn_model(vocab_size, max_len, num_classes):
@@ -60,10 +56,9 @@ def build_tcn_model(vocab_size, max_len, num_classes):
 model = build_tcn_model(vocab_size, max_len, y.shape[1])
 model.summary()
 
-# Train the model
+
 history = model.fit(X_train, y_train, epochs=55, batch_size=16, validation_split=0.2)
 
-# Evaluate the model
 y_pred = model.predict(X_test)
 y_pred_classes = np.argmax(y_pred, axis=1)
 y_true = np.argmax(y_test, axis=1)
